@@ -1,6 +1,9 @@
 # Quix WSI (WebSockets Interface)
-### Authentication
-Quix WSI performs simple authentication on the client-side using basic username/password authentication. The credentials are checked on the server and a token is provided to the user for future use.
+
+### Initial Authentication
+Quix WSI performs simple authentication on the client-side using basic username/password authentication.  
+The credentials are checked on the server and a token is provided to the user for future use.  
+**Note:** This should only be performed once, and the token saved to the server's disk for later usage. Should this section be run again, the server should treat the backend as a new one.
 
 #### Client
 ```js
@@ -32,7 +35,43 @@ Quix WSI performs simple authentication on the client-side using basic username/
     "rid": 12345,
     "msg": {
         "success": false,
-        "reason": "password_invalid",
+        "reason": "password_invalid"
+    }
+}
+```
+
+### Basic Authentication
+If the backend loses its connection to the control server, authentication can be performed again.  
+**Note:** If the client re-connects while another socket with the same auth token is open, the old connection should be destroyed.
+
+#### Client
+```js
+{
+    "auth": "fonsdkosdg9wjttj092gf1rj9fm2fe",
+    "req": "authenticate",
+    "rid": 12345,
+    "msg": {
+    }
+}
+```
+
+#### Server Response
+```js
+{
+    "rid": 12345,
+    "msg": {
+        "success": true,
+        "validity": 21645,                          // Remaining token lifetime (seconds)
+    }
+}
+
+/* Failure Case */
+
+{
+    "rid": 12345,
+    "msg": {
+        "success": false,
+        "reason": "token_invalid"
     }
 }
 ```
@@ -47,9 +86,9 @@ Note: Ideally, these operations should be performed by a user with access to onl
     "req": "execute",
     "rid": 65019,
     "msg": {
-        "bin": "python3",                       // binary to use (leave blank for system)
-        "loc": "testserver/testserver.py",      // file location (relative to quix folder)
-        "args": "--help"                        // command line arguments
+        /*  Program to execute. This is the same format as the Python
+            subprocess.Popen call where spaces are separated into array items */
+        "cmd": ["python3", "testserver/testserver.py", "--help"],
     }
 }
 ```
@@ -131,8 +170,8 @@ Quix WSI can send VPN configuration files to the client.
     "req": "get_vpn_conf",
     "rid": 45183,
     "msg": {
-        "conf_type": "openvpn",
-        "tun_mode": "udp"
+        "conf_type": "wireguard",
+        "tun_mode": "udp"           // always udp for wireguard
     }
 ```
 
@@ -142,8 +181,8 @@ Quix WSI can send VPN configuration files to the client.
     "rid": 45183,
     "msg": {
         "result": "success",
-        "conf_type": "openvpn",
-        "conf_data": "dev tun\nproto udp ... ... ...-----END OpenVPN Static Key V1-----"
+        "conf_type": "wireguard",
+        "conf_data": "[Interface]\nPrivateKey=af8t8 ... ... ... /32"
     }
 }
 ```
@@ -177,8 +216,8 @@ The information required can be specified manually. In this case, all available 
                 "/dev/sdb":  [185844831, 8187395730]    // ^^
             },
             "vpn_status": {
-                "ifname":    "tun0",                    // VPN Interface Name
-                "conn_type": "openvpn",                 // VPN Connection Type
+                "ifname":    "wg0",                     // VPN Interface Name
+                "conn_type": "wireguard",               // VPN Connection Type
                 "conn_host": "th1.s.quix.click",        // VPN Endpoint
                 "conn_ip4":  "10.8.0.120",              // VPN IPv4 address
                 "conn_ip6":  "fe80::1"                  // VPN IPv6 address
