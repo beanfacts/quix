@@ -1,0 +1,15 @@
+{
+    "____________________________________ required parameters": "",
+
+    "ifname":       "wg0",
+    "private_key":  "4D4gQgSRb9PvCJMDh4Hp/5krxtT860PHKU0GwaPmaH4=",
+    "listen_port":  51820,
+    "gateway_ip":   "10.120.0.1/24",
+
+    "____________________________________ optional parameters": "",
+    
+    "pg_host":      "10.148.0.4",
+    "pg_dbname":    "quix",
+    "pg_user":      "postgres",
+    "pg_pass":      "password"
+}
